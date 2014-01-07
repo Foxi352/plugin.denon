@@ -28,69 +28,69 @@ logger = logging.getLogger('Denon')
 
 class Denon(lib.connection.Client):
 
-	# Initialize connection to receiver
-	def __init__(self, smarthome, host, port=23):
-		logger.info("Denon: connecting to {0}:{1}".format(host,port))
-		lib.connection.Client.__init__(self, host, port, monitor=True)
-		self.terminator = b'\r'
-		self._sh = smarthome
-		self._power = ''
+    # Initialize connection to receiver
+    def __init__(self, smarthome, host, port=23):
+        logger.info("Denon: connecting to {0}:{1}".format(host, port))
+        lib.connection.Client.__init__(self, host, port, monitor=True)
+        self.terminator = b'\r'
+        self._sh = smarthome
+        self._power = ''
 
-	# Parse received input from Denon and set items
-	def found_terminator(self, data):
-		data = data.decode()
-		logger.debug("Denon: Got: {0}".format(data))
-		if data == 'PWON':
-			logger.debug("Denon: Powered on")
-			self._power(True,'Denon')
-		elif data == 'PWSTANDBY':
-			logger.debug("Denon: Powered off")
-			self._power(False,'Denon')
+    # Parse received input from Denon and set items
+    def found_terminator(self, data):
+        data = data.decode()
+        logger.debug("Denon: Got: {0}".format(data))
+        if data == 'PWON':
+            logger.debug("Denon: Powered on")
+            self._power(True, 'Denon')
+        elif data == 'PWSTANDBY':
+            logger.debug("Denon: Powered off")
+            self._power(False, 'Denon')
 
-	# Set plugin to alive
-	def run(self):
-		self.alive = True
-	
-	# Close connection to receiver and set alive to false
-	def stop(self):
-		self.alive = False
-		self.close()
-		
-	# Parse items and bind commands to plugin
-	def parse_item(self, item):
-		if 'denon_send' in item.conf:
-			cmd = item.conf['denon_send']
-			if (cmd is None):
-				return None
-			if cmd == 'power':
-				self._power = item
-			return self.update_item
-		else:
-  			return None
+    # Set plugin to alive
+    def run(self):
+        self.alive = True
 
-	# TODO: Logic not yet used
-	def parse_logic(self, logic):
-		pass
+    # Close connection to receiver and set alive to false
+    def stop(self):
+        self.alive = False
+        self.close()
 
-	# Receive commands, process them and forward them to receiver
-	def update_item(self, item, caller=None, source=None, dest=None):
-		if caller != 'Denon':
-			if 'denon_send' in item.conf: 
-				command = item.conf['denon_send']
-				value = item()
-				logger.info("Denon: {0} set {1} to {2} for {3}".format(caller, command, value, item.id()))		
-				if(command == 'power') and (isinstance(value, bool)):
-					self._send('PWON' if value else 'PWSTANDBY')
-				else:
-					logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
+    # Parse items and bind commands to plugin
+    def parse_item(self, item):
+        if 'denon_send' in item.conf:
+            cmd = item.conf['denon_send']
+            if (cmd is None):
+                return None
+            if cmd == 'power':
+                self._power = item
+            return self.update_item
+        else:
+            return None
 
-	# Send commands to receiver if connected
-	def _send(self, cmd):
-		if not self.connected:
-			logger.warning("Denon: No connection, can not send command: {0}".format(cmd))
-			return
-		logger.debug("Denon: Sending request: {0}".format(cmd))
-		self.send(bytes(cmd + '\r', 'utf-8'))
+    # TODO: Logic not yet used
+    def parse_logic(self, logic):
+        pass
+
+    # Receive commands, process them and forward them to receiver
+    def update_item(self, item, caller=None, source=None, dest=None):
+        if caller != 'Denon':
+            if 'denon_send' in item.conf:
+                command = item.conf['denon_send']
+                value = item()
+                logger.info("Denon: {0} set {1} to {2} for {3}".format(caller, command, value, item.id()))
+                if(command == 'power') and (isinstance(value, bool)):
+                    self._send('PWON' if value else 'PWSTANDBY')
+                else:
+                    logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
+
+    # Send commands to receiver if connected
+    def _send(self, cmd):
+        if not self.connected:
+            logger.warning("Denon: No connection, can not send command: {0}".format(cmd))
+            return
+        logger.debug("Denon: Sending request: {0}".format(cmd))
+        self.send(bytes(cmd + '\r', 'utf-8'))
 
 # TODO: Delete everything below :-)
 
