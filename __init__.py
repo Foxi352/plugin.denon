@@ -94,65 +94,35 @@ class Denon(lib.connection.Client):
 
 # TODO: Delete everything below :-)
 
-#2014-01-07 17:09:07,511 INFO     Main         Denon: Visu send EG.Stube.Denon.Power  - power True -- 2014-01-07 17:09:07,515 DEBUG    Main         Denon: Sending request: PWON -- __init__.py:_send:101
-#2014-01-07 17:09:07,536 DEBUG    Main         Denon: Got: ZMON -- __init__.py:found_terminator:40
-#2014-01-07 17:09:08,057 DEBUG    Main         Denon: Line: ZMON -- __init__.py:found_terminator:42
-#2014-01-07 17:09:08,066 DEBUG    Main         Denon: Got: PWON -- __init__.py:found_terminator:40
-#2014-01-07 17:09:08,081 DEBUG    Main         Denon: Line: PWON -- __init__.py:found_terminator:42
-#2014-01-07 17:09:16,633 DEBUG    Main         Denon: Line: PWON -- __init__.py:found_terminator:42
-
-#14-01-07 17:09:29,803 DEBUG    Main         Denon: Sending request: PWSTANDBY -- __init__.py:_send:101
-#2014-01-07 17:09:29,827 DEBUG    Main         Denon: Got: PWSTANDBY -- __init__.py:found_terminator:40
-#2014-01-07 17:09:30,313 DEBUG    Main         Denon: Line: PWSTANDBY -- __init__.py:found_terminator:42
-#2014-01-07 17:09:30,322 DEBUG    Main         Denon: Got: ZMOFF -- __init__.py:found_terminator:40
-#2014-01-07 17:09:30,331 DEBUG    Main         Denon: Line: ZMOFF -- __init__.py:found_terminator:42
 '''
-2014-01-07 17:26:47,934 DEBUG    Main         knx: 1.1.76 set 4/0/0 to True -- __init__.py:parse_telegram:190
+2014-01-07 17:09:07,511 INFO     Main         Denon: Visu send EG.Stube.Denon.Power  - power True -- 2014-01-07 17:09:07,515 DEBUG    Main         Denon: Sending request: PWON -- __init__.py:_send:101
+
+2014-01-07 17:09:07,536 DEBUG    Main         Denon: Got: ZMON -- __init__.py:found_terminator:40
+2014-01-07 17:09:08,066 DEBUG    Main         Denon: Got: PWON -- __init__.py:found_terminator:40
+2014-01-07 17:09:29,803 DEBUG    Main         Denon: Sending request: PWSTANDBY -- __init__.py:_send:101
+2014-01-07 17:09:29,827 DEBUG    Main         Denon: Got: PWSTANDBY -- __init__.py:found_terminator:40
+2014-01-07 17:09:30,322 DEBUG    Main         Denon: Got: ZMOFF -- __init__.py:found_terminator:40
 2014-01-07 17:26:49,874 DEBUG    Main         Denon: Got: MSDIRECT -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,884 DEBUG    Main         Denon: Line: MSDIRECT -- __init__.py:found_terminator:42
 2014-01-07 17:26:49,899 DEBUG    Main         Denon: Got: PSDCO OFF -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,904 DEBUG    Main         Denon: Line: PSDCO OFF -- __init__.py:found_terminator:42
 2014-01-07 17:26:49,940 DEBUG    Main         Denon: Got: PSDRC AUTO -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,945 DEBUG    Main         Denon: Line: PSDRC AUTO -- __init__.py:found_terminator:42
 2014-01-07 17:26:49,993 DEBUG    Main         Denon: Got: PSLFE 00 -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,997 DEBUG    Main         Denon: Line: PSLFE 00 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,020 DEBUG    Main         Denon: Got: PSBAS 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,025 DEBUG    Main         Denon: Line: PSBAS 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,060 DEBUG    Main         Denon: Got: PSTRE 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,065 DEBUG    Main         Denon: Line: PSTRE 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,101 DEBUG    Main         Denon: Got: PSTONE CTRL OFF -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,107 DEBUG    Main         Denon: Line: PSTONE CTRL OFF -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,150 DEBUG    Main         Denon: Got: SIDVD -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,155 DEBUG    Main         Denon: Line: SIDVD -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,181 DEBUG    Main         Denon: Got: CVFL 44 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,186 DEBUG    Main         Denon: Line: CVFL 44 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,219 DEBUG    Main         Denon: Got: CVFR 475 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,224 DEBUG    Main         Denon: Line: CVFR 475 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,259 DEBUG    Main         Denon: Got: CVC 46 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,263 DEBUG    Main         Denon: Line: CVC 46 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,312 DEBUG    Main         Denon: Got: CVSW 38 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,316 DEBUG    Main         Denon: Line: CVSW 38 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,340 DEBUG    Main         Denon: Got: CVSL 485 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,345 DEBUG    Main         Denon: Line: CVSL 485 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,380 DEBUG    Main         Denon: Got: CVSR 49 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,384 DEBUG    Main         Denon: Line: CVSR 49 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,421 DEBUG    Main         Denon: Got: CVSBL 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,425 DEBUG    Main         Denon: Line: CVSBL 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,459 DEBUG    Main         Denon: Got: CVSBR 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,463 DEBUG    Main         Denon: Line: CVSBR 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,498 DEBUG    Main         Denon: Got: CVSB 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,503 DEBUG    Main         Denon: Line: CVSB 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,539 DEBUG    Main         Denon: Got: CVFHL 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,544 DEBUG    Main         Denon: Line: CVFHL 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,580 DEBUG    Main         Denon: Got: CVFHR 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,585 DEBUG    Main         Denon: Line: CVFHR 50 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,620 DEBUG    Main         Denon: Got: MVMAX 98 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,624 DEBUG    Main         Denon: Line: MVMAX 98 -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,662 DEBUG    Main         Denon: Got: SDAUTO -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,666 DEBUG    Main         Denon: Line: SDAUTO -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,710 DEBUG    Main         Denon: Got: SVSOURCE -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,715 DEBUG    Main         Denon: Line: SVSOURCE -- __init__.py:found_terminator:42
 2014-01-07 17:26:50,740 DEBUG    Main         Denon: Got: DCAUTO -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,745 DEBUG    Main         Denon: Line: DCAUTO -- __init__.py:found_terminator:42
-2014-01-07
 '''
