@@ -33,19 +33,37 @@ class Denon(lib.connection.Client):
         logger.info("Denon: connecting to {0}:{1}".format(host, port))
         lib.connection.Client.__init__(self, host, port, monitor=True)
         self.terminator = b'\r'
+        self._host = host
         self._sh = smarthome
         self._power = ''
+
+    # On connect poll states
+    def handle_connect(self):
+        self._send('PW?')
 
     # Parse received input from Denon and set items
     def found_terminator(self, data):
         data = data.decode()
-        logger.debug("Denon: Got: {0}".format(data))
+        logger.debug("Denon: Got: {0} from {1}".format(data, self._host))
         if data == 'PWON':
-            logger.debug("Denon: Powered on")
-            self._power(True, 'Denon')
+            logger.info("Denon: {0} powered on".format(self._host))
+            self._power(True, 'Denon', self._host)
+            self._send('MV?')
         elif data == 'PWSTANDBY':
-            logger.debug("Denon: Powered off")
-            self._power(False, 'Denon')
+            logger.info("Denon: {0} powered off".format(self._host))
+            self._power(False, 'Denon', self._host)
+        elif data.startswith('MV'):
+            try:
+                vol = data[2:]
+                if vol.isdigit():
+                    if len(vol) == 3:
+                        vol = vol[:-1]
+                    logger.info("Denon: {0} is at volume {1}".format(self._host, vol))
+                    self._volume(vol, 'Denon', self._host)
+                else:
+                    logger.info("Denon: Unknown volume info received")
+            except:
+                logger.info("Denon: Unknown volume info received")
 
     # Set plugin to alive
     def run(self):
@@ -62,8 +80,10 @@ class Denon(lib.connection.Client):
             cmd = item.conf['denon_send']
             if (cmd is None):
                 return None
-            if cmd == 'power':
+            elif cmd == 'power':
                 self._power = item
+            elif cmd == 'volume':
+                self._volume = item
             return self.update_item
         else:
             return None
@@ -81,6 +101,8 @@ class Denon(lib.connection.Client):
                 logger.info("Denon: {0} set {1} to {2} for {3}".format(caller, command, value, item.id()))
                 if(command == 'power') and (isinstance(value, bool)):
                     self._send('PWON' if value else 'PWSTANDBY')
+                elif(command == 'volume') and (isinstance(value, int)):
+                    self._send('MV{0}'.format(value))
                 else:
                     logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
 
@@ -91,38 +113,3 @@ class Denon(lib.connection.Client):
             return
         logger.debug("Denon: Sending request: {0}".format(cmd))
         self.send(bytes(cmd + '\r', 'utf-8'))
-
-# TODO: Delete everything below :-)
-
-'''
-2014-01-07 17:09:07,511 INFO     Main         Denon: Visu send EG.Stube.Denon.Power  - power True -- 2014-01-07 17:09:07,515 DEBUG    Main         Denon: Sending request: PWON -- __init__.py:_send:101
-
-2014-01-07 17:09:07,536 DEBUG    Main         Denon: Got: ZMON -- __init__.py:found_terminator:40
-2014-01-07 17:09:08,066 DEBUG    Main         Denon: Got: PWON -- __init__.py:found_terminator:40
-2014-01-07 17:09:29,803 DEBUG    Main         Denon: Sending request: PWSTANDBY -- __init__.py:_send:101
-2014-01-07 17:09:29,827 DEBUG    Main         Denon: Got: PWSTANDBY -- __init__.py:found_terminator:40
-2014-01-07 17:09:30,322 DEBUG    Main         Denon: Got: ZMOFF -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,874 DEBUG    Main         Denon: Got: MSDIRECT -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,899 DEBUG    Main         Denon: Got: PSDCO OFF -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,940 DEBUG    Main         Denon: Got: PSDRC AUTO -- __init__.py:found_terminator:40
-2014-01-07 17:26:49,993 DEBUG    Main         Denon: Got: PSLFE 00 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,020 DEBUG    Main         Denon: Got: PSBAS 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,060 DEBUG    Main         Denon: Got: PSTRE 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,101 DEBUG    Main         Denon: Got: PSTONE CTRL OFF -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,150 DEBUG    Main         Denon: Got: SIDVD -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,181 DEBUG    Main         Denon: Got: CVFL 44 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,219 DEBUG    Main         Denon: Got: CVFR 475 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,259 DEBUG    Main         Denon: Got: CVC 46 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,312 DEBUG    Main         Denon: Got: CVSW 38 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,340 DEBUG    Main         Denon: Got: CVSL 485 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,380 DEBUG    Main         Denon: Got: CVSR 49 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,421 DEBUG    Main         Denon: Got: CVSBL 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,459 DEBUG    Main         Denon: Got: CVSBR 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,498 DEBUG    Main         Denon: Got: CVSB 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,539 DEBUG    Main         Denon: Got: CVFHL 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,580 DEBUG    Main         Denon: Got: CVFHR 50 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,620 DEBUG    Main         Denon: Got: MVMAX 98 -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,662 DEBUG    Main         Denon: Got: SDAUTO -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,710 DEBUG    Main         Denon: Got: SVSOURCE -- __init__.py:found_terminator:40
-2014-01-07 17:26:50,740 DEBUG    Main         Denon: Got: DCAUTO -- __init__.py:found_terminator:40
-'''
