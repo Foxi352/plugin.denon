@@ -31,15 +31,22 @@ Description of the attributes:
 ## items.conf
 
 <pre>
-		[[[Denon]]]
-			[[[[Power]]]]
-				type = bool
-				visu_acl = rw
-				denon_send = power
-				enforce_updates = on
-			[[[[Volume]]]]
-				type = num
-				visu_acl = rw
-				denon_send = volume
-				enforce_updates = on
+[[[Denon]]]
+	[[[[Power]]]]
+		type = bool
+		visu_acl = rw
+		denon_send = power
+		enforce_updates = on
+	[[[[Volume]]]]
+		type = num
+		visu_acl = rw
+		denon_send = volume
+		enforce_updates = on
+</pre>
+
+## pages Beispiele
+
+<pre>
+{{ basic.slider('slider1', 'EG.Stube.Denon.Volume', 0, 99, 1) }}
+{{ basic.switch('switch1', 'EG.Stube.Denon.Power', icon1~'audio_audio.png', icon0~'audio_audio.png') }}  Verstärker
 </pre>
