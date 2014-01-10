@@ -63,8 +63,8 @@ class Denon(lib.connection.Client):
             try:
                 vol = data[2:]
                 if vol.isdigit():
-                    if len(vol) == 3:
-                        vol = vol[:-1]
+                    # 3 digits volume means last digit is decimal. As we only use entire numbers cut the third digit
+                    vol = vol[:2]
                     logger.info("Denon: {0} is at volume {1}".format(self._host, vol))
                     self._items['volume'](vol, 'Denon', self._host)
                 else:

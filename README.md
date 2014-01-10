@@ -1,10 +1,6 @@
 # Denon
 
-# Requirements
-
-A properly installed and configured Logitech Media Server is required.
-
-## Supported Hardware
+# Supported Hardware
 
 Tested with:
 * Denon AVR-1912
