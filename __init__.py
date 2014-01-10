@@ -35,11 +35,12 @@ class Denon(lib.connection.Client):
         self.terminator = b'\r'
         self._host = host
         self._sh = smarthome
-        self._power = ''
+        self._items = {}
 
     # On connect poll states
     def handle_connect(self):
         self._send('PW?')
+        self._send('MU?')
 
     # Parse received input from Denon and set items
     def found_terminator(self, data):
@@ -47,11 +48,17 @@ class Denon(lib.connection.Client):
         logger.debug("Denon: Got: {0} from {1}".format(data, self._host))
         if data == 'PWON':
             logger.info("Denon: {0} powered on".format(self._host))
-            self._power(True, 'Denon', self._host)
+            self._items['power'](True, 'Denon', self._host)
             self._send('MV?')
         elif data == 'PWSTANDBY':
             logger.info("Denon: {0} powered off".format(self._host))
-            self._power(False, 'Denon', self._host)
+            self._items['power'](False, 'Denon', self._host)
+        elif data == 'MUON':
+            logger.info("Denon: {0} muted".format(self._host))
+            self._items['mute'](True, 'Denon', self._host)
+        elif data == 'MUOFF':
+            logger.info("Denon: {0} unmuted".format(self._host))
+            self._items['mute'](False, 'Denon', self._host)
         elif data.startswith('MV'):
             try:
                 vol = data[2:]
@@ -59,11 +66,11 @@ class Denon(lib.connection.Client):
                     if len(vol) == 3:
                         vol = vol[:-1]
                     logger.info("Denon: {0} is at volume {1}".format(self._host, vol))
-                    self._volume(vol, 'Denon', self._host)
+                    self._items['volume'](vol, 'Denon', self._host)
                 else:
-                    logger.info("Denon: Unknown volume info received")
+                    logger.debug("Denon: Unknown volume info received")
             except:
-                logger.info("Denon: Unknown volume info received")
+                logger.debug("Denon: Unknown volume info received")
 
     # Set plugin to alive
     def run(self):
@@ -80,10 +87,8 @@ class Denon(lib.connection.Client):
             cmd = item.conf['denon_send']
             if (cmd is None):
                 return None
-            elif cmd == 'power':
-                self._power = item
-            elif cmd == 'volume':
-                self._volume = item
+            else:
+                self._items[cmd] = item
             return self.update_item
         else:
             return None
@@ -101,8 +106,14 @@ class Denon(lib.connection.Client):
                 logger.info("Denon: {0} set {1} to {2} for {3}".format(caller, command, value, item.id()))
                 if(command == 'power') and (isinstance(value, bool)):
                     self._send('PWON' if value else 'PWSTANDBY')
+                elif(command == 'mute') and (isinstance(value, bool)):
+                    self._send('MUON' if value else 'MUOFF')
                 elif(command == 'volume') and (isinstance(value, int)):
                     self._send('MV{0}'.format(value))
+                elif(command == 'volume+'):
+                    self._send('MVUP')
+                elif(command == 'volume-'):
+                    self._send('MVDOWN')
                 else:
                     logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
 

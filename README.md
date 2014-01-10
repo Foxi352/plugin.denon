@@ -37,10 +37,25 @@ Description of the attributes:
 		visu_acl = rw
 		denon_send = power
 		enforce_updates = on
+	[[[[Mute]]]]
+		type = bool
+		visu_acl = rw
+		denon_send = mute
+		enforce_updates = on
 	[[[[Volume]]]]
 		type = num
 		visu_acl = rw
 		denon_send = volume
+		enforce_updates = on
+	[[[[VolumeUp]]]]
+		type = bool
+		visu_acl = rw
+		denon_send = volume+
+		enforce_updates = on
+	[[[[VolumeDown]]]]
+		type = bool
+		visu_acl = rw
+		denon_send = volume-
 		enforce_updates = on
 </pre>
 
@@ -49,4 +64,7 @@ Description of the attributes:
 <pre>
 {{ basic.slider('slider1', 'EG.Stube.Denon.Volume', 0, 99, 1) }}
 {{ basic.switch('switch1', 'EG.Stube.Denon.Power', icon1~'audio_audio.png', icon0~'audio_audio.png') }}  Verstärker
+{{ basic.switch('switch2', 'EG.Stube.Denon.Mute', icon1~'audio_volume_mute.png', icon0~'audio_volume_mute.png') }}  Mute
+{{ basic.switch('switch3', 'EG.Stube.Denon.VolumeDown', icon0~'control_minus.svg', icon0~'control_minus.svg') }}  Vol-
+{{ basic.switch('switch4', 'EG.Stube.Denon.VolumeUp', icon0~'control_plus.svg', icon0~'control_plus.svg') }}  Vol+
 </pre>
