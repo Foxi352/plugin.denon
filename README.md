@@ -22,7 +22,7 @@ Should work with other Denon and some Marantz receivers - please let me know!
 Description of the attributes:
 
 * __host__: IP or hostname of the AVR
-* __port__: Port number of the Logitech Media Server if not 23
+* __port__: Port number of the AVR, normally telnet port 23
 
 ## items.conf
 
