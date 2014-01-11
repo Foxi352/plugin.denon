@@ -53,6 +53,11 @@ Description of the attributes:
 		visu_acl = rw
 		denon_send = volume-
 		enforce_updates = on
+	[[[[Source]]]]
+		type = str
+		visu_acl = rw
+		denon_send = source
+		enforce_updates = on			
 </pre>
 
 ## pages Beispiele
@@ -63,4 +68,5 @@ Description of the attributes:
 {{ basic.switch('switch2', 'EG.Stube.Denon.Mute', icon1~'audio_volume_mute.png', icon0~'audio_volume_mute.png') }}  Mute
 {{ basic.switch('switch3', 'EG.Stube.Denon.VolumeDown', icon0~'control_minus.svg', icon0~'control_minus.svg') }}  Vol-
 {{ basic.switch('switch4', 'EG.Stube.Denon.VolumeUp', icon0~'control_plus.svg', icon0~'control_plus.svg') }}  Vol+
+{{ basic.button('button1', 'EG.Stube.Denon.Source', 'DVD', '', 'DVD') }}
 </pre>

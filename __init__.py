@@ -20,6 +20,7 @@
 #########################################################################
 
 import logging
+from time import sleep
 
 import lib.connection
 
@@ -40,6 +41,7 @@ class Denon(lib.connection.Client):
     # On connect poll states
     def handle_connect(self):
         self._send('PW?')
+        sleep(0.2)
         self._send('MU?')
 
     # Parse received input from Denon and set items
@@ -50,6 +52,7 @@ class Denon(lib.connection.Client):
             logger.info("Denon: {0} powered on".format(self._host))
             self._items['power'](True, 'Denon', self._host)
             self._send('MV?')
+            self._send('SI?')
         elif data == 'PWSTANDBY':
             logger.info("Denon: {0} powered off".format(self._host))
             self._items['power'](False, 'Denon', self._host)
@@ -61,7 +64,7 @@ class Denon(lib.connection.Client):
             self._items['mute'](False, 'Denon', self._host)
         elif data.startswith('MV'):
             try:
-                # 3 digits volume means last digit is decimal. As we only use entire numbers cut the third digit
+                # 3 digits volume means last digit is decimal. Cut it ! :-)
                 vol = data[2:][:2]
                 if vol.isdigit():
                     logger.info("Denon: {0} is at volume {1}".format(self._host, vol))
@@ -70,6 +73,10 @@ class Denon(lib.connection.Client):
                     logger.debug("Denon: Unknown volume info received")
             except:
                 logger.debug("Denon: Unknown volume info received")
+        elif data.startswith('SI'):
+             source = data[2:]
+             logger.info("Denon: {0} source is {1}".format(self._host, source))
+             self._items['source'](source, 'Denon', self._host)
 
     # Set plugin to alive
     def run(self):
@@ -113,6 +120,8 @@ class Denon(lib.connection.Client):
                     self._send('MVUP')
                 elif(command == 'volume-'):
                     self._send('MVDOWN')
+                elif(command == 'source'):
+                    self._send('SI{}'.format(value))
                 else:
                     logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
 
