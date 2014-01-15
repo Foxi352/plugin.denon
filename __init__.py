@@ -20,6 +20,8 @@
 #########################################################################
 
 import logging
+import threading
+
 from time import sleep
 
 import lib.connection
@@ -30,39 +32,59 @@ logger = logging.getLogger('Denon')
 class Denon(lib.connection.Client):
 
     # Initialize connection to receiver
-    def __init__(self, smarthome, host, port=23):
+    def __init__(self, smarthome, host, port=23, cycle=15):
         logger.info("Denon: connecting to {0}:{1}".format(host, port))
         lib.connection.Client.__init__(self, host, port, monitor=True)
         self.terminator = b'\r'
         self._host = host
         self._sh = smarthome
         self._items = {}
+        self._sources = {}
+        self._cmd_lock = threading.Lock()
+        self._status_objects = ['SI?', 'MU?', 'PSBAS ?', 'PSTRE ?']
+        self._status_objects_count = len(self._status_objects)
+        self._status_objects_pointer = 0
+
+        # After power on poll status objects
+        self._sh.scheduler.add('status-update', self._update_status, cycle=5)
+        self._sh.scheduler.change('status-update', active=False)
+
+        # Sadly the Denon does not send an event on now playing change
+        self._sh.scheduler.add('nowplaying-update', self._update_now_playing, cycle=cycle)
+        self._sh.scheduler.change('nowplaying-update', active=False)
 
     # On connect poll states
     def handle_connect(self):
         self._send('PW?')
-        sleep(0.2)
-        self._send('MU?')
 
     # Parse received input from Denon and set items
     def found_terminator(self, data):
         data = data.decode()
         logger.debug("Denon: Got: {0} from {1}".format(data, self._host))
+        # AVR switched on
         if data == 'PWON':
             logger.info("Denon: {0} powered on".format(self._host))
             self._items['power'](True, 'Denon', self._host)
+            sleep(1.5)
             self._send('MV?')
-            self._send('SI?')
+            self._sh.scheduler.change('status-update', active=True)
+        # AVR entered standby
         elif data == 'PWSTANDBY':
             logger.info("Denon: {0} powered off".format(self._host))
             self._items['power'](False, 'Denon', self._host)
+            self._sh.scheduler.change('status-update', active=False)
+        # AVR is muted
         elif data == 'MUON':
             logger.info("Denon: {0} muted".format(self._host))
             self._items['mute'](True, 'Denon', self._host)
+        # AVE is unmuted
         elif data == 'MUOFF':
             logger.info("Denon: {0} unmuted".format(self._host))
             self._items['mute'](False, 'Denon', self._host)
+        # Got master volume
         elif data.startswith('MV'):
+            #self._send('PSBAS ?')
+            #self._send('PSTRE ?')
             try:
                 # 3 digits volume means last digit is decimal. Cut it ! :-)
                 vol = data[2:][:2]
@@ -73,10 +95,68 @@ class Denon(lib.connection.Client):
                     logger.debug("Denon: Unknown volume info received")
             except:
                 logger.debug("Denon: Unknown volume info received")
+        # Got BASS setting
+        elif data.startswith('PSBAS'):
+            try:
+                # 3 digits volume means last digit is decimal. Cut it ! :-)
+                bass = data[6:]
+                if bass.isdigit():
+                    logger.info("Denon: {0} bass setting is {1}".format(self._host, bass))
+                    self._items['bass'](bass, 'Denon', self._host)
+                else:
+                    logger.debug("Denon: Unknown BASS info received")
+            except:
+                logger.debug("Denon: Unknown BASS info received")
+        # Got TREBBLE setting
+        elif data.startswith('PSTRE'):
+            try:
+                # 3 digits volume means last digit is decimal. Cut it ! :-)
+                trebble = data[6:]
+                if trebble.isdigit():
+                    logger.info("Denon: {0} trebble setting is {1}".format(self._host, trebble))
+                    self._items['trebble'](trebble, 'Denon', self._host)
+                else:
+                    logger.debug("Denon: Unknown TREBBLE info received")
+            except:
+                logger.debug("Denon: Unknown TREBBLE info received")
+        # Got onscreen display info containing title and artist now playing
+        elif data.startswith('NSE'):
+            try:
+                line = data[3:][:1]
+                if line.isdigit():
+                    line = int(line)
+                    if line == 0:
+                        content = data[4:]
+                    elif line == 1:
+                        content = data[5:]
+                    else:
+                        content = data[6:]
+                    if content:
+                        # Now playing
+                        if line == 1:
+                            logger.info("Denon: {} Now playing {}".format(self._host, content))
+                            self._items['title'](content, 'Denon', self._host)
+                        # Internet radio Station name
+                        elif line == 2 and self._items['source']() == 'IRADIO':
+                            logger.info("Denon: {} Internet radio station {}".format(self._host, content))
+                            self._items['station'](content, 'Denon', self._host)
+                else:
+                    logger.debug("Denon: Unknown display line info received")
+            except:
+                logger.debug("Denon: Unknown display line info received")
+        # Got input source information
         elif data.startswith('SI'):
-             source = data[2:]
-             logger.info("Denon: {0} source is {1}".format(self._host, source))
-             self._items['source'](source, 'Denon', self._host)
+            source = data[2:]
+            logger.info("Denon: {0} source is {1}".format(self._host, source))
+            self._items['source'](source, 'Denon', self._host)
+            # If source is internet radio, poll nowplaying (display lines) regularly
+            if source == 'IRADIO':
+                self._sh.scheduler.change('nowplaying-update', active=True)
+                self._sh.trigger('nowplaying-update', self._update_now_playing)
+            else:
+                self._sh.scheduler.change('nowplaying-update', active=False)
+                self._items['title']('', 'Denon', self._host)
+                self._items['station']('', 'Denon', self._host)
 
     # Set plugin to alive
     def run(self):
@@ -95,6 +175,14 @@ class Denon(lib.connection.Client):
                 return None
             else:
                 self._items[cmd] = item
+            return self.update_item
+        elif 'denon_listen' in item.conf:
+            info = item.conf['denon_listen']
+            if (info is None):
+                return None
+            else:
+                self._items[info] = item
+                logger.debug("Denon: Listening to {} info".format(info))
             return self.update_item
         else:
             return None
@@ -125,10 +213,23 @@ class Denon(lib.connection.Client):
                 else:
                     logger.warning("Denon: Command {0} or value {1} invalid".format(command, value))
 
+    # Poll for now playing updates
+    def _update_status(self):
+        self._send(self._status_objects[self._status_objects_pointer])
+        self._status_objects_pointer += 1
+        if self._status_objects_pointer >= self._status_objects_count:
+            self._status_objects_pointer = 0
+
+    # Poll for now playing updates
+    def _update_now_playing(self):
+        self._send('NSE')
+
     # Send commands to receiver if connected
     def _send(self, cmd):
+        self._cmd_lock.acquire()
         if not self.connected:
             logger.warning("Denon: No connection, can not send command: {0}".format(cmd))
             return
         logger.debug("Denon: Sending request: {0}".format(cmd))
         self.send(bytes(cmd + '\r', 'utf-8'))
+        self._cmd_lock.release()
