@@ -6,7 +6,7 @@ macro tone(id, gad_bass, gad_trebble)
 
 ## pages examples
 
-'''html
+~~~
 	<div class="block">
 		<div class="set-2" data-role="collapsible-set" data-theme="c" data-content-theme="a" data-mini="true">
 			<div data-role="collapsible" data-collapsed="false">
@@ -22,4 +22,4 @@ macro tone(id, gad_bass, gad_trebble)
 		</div>
 	</div>
     </blockquote>
-'''
+~~~
