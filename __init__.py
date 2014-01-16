@@ -41,12 +41,13 @@ class Denon(lib.connection.Client):
         self._items = {}
         self._sources = {}
         self._cmd_lock = threading.Lock()
-        self._status_objects = ['SI?', 'MU?', 'PSBAS ?', 'PSTRE ?']
+        self._status_objects = ['MV?', 'SI?', 'MU?', 'PSBAS ?', 'PSTRE ?', 'PSTONE CTRL ON']
         self._status_objects_count = len(self._status_objects)
         self._status_objects_pointer = 0
+        self._status_cycle_counter = 0
 
         # After power on poll status objects
-        self._sh.scheduler.add('status-update', self._update_status, cycle=5)
+        self._sh.scheduler.add('status-update', self._update_status, cycle=2)
         self._sh.scheduler.change('status-update', active=False)
 
         # Sadly the Denon does not send an event on now playing change
@@ -66,7 +67,7 @@ class Denon(lib.connection.Client):
             logger.info("Denon: {0} powered on".format(self._host))
             self._items['power'](True, 'Denon', self._host)
             sleep(1.5)
-            self._send('MV?')
+            self._send('PSTONE CTRL ON')
             self._sh.scheduler.change('status-update', active=True)
         # AVR entered standby
         elif data == 'PWSTANDBY':
@@ -204,6 +205,10 @@ class Denon(lib.connection.Client):
                     self._send('MUON' if value else 'MUOFF')
                 elif(command == 'volume') and (isinstance(value, int)):
                     self._send('MV{0}'.format(value))
+                elif(command == 'bass') and (isinstance(value, int)):
+                    self._send('PSBAS {0}'.format(value))
+                elif(command == 'trebble') and (isinstance(value, int)):
+                    self._send('PSTRE {0}'.format(value))
                 elif(command == 'volume+'):
                     self._send('MVUP')
                 elif(command == 'volume-'):
@@ -219,6 +224,10 @@ class Denon(lib.connection.Client):
         self._status_objects_pointer += 1
         if self._status_objects_pointer >= self._status_objects_count:
             self._status_objects_pointer = 0
+            self._status_cycle_counter += 1
+        if self._status_cycle_counter == 2:
+            self._sh.scheduler.change('status-update', active=False)
+            self._status_cycle_counter = 0
 
     # Poll for now playing updates
     def _update_now_playing(self):
