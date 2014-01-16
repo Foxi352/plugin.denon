@@ -1,0 +1,91 @@
+
+/**
+* Standard AVR controller
+*
+* @param unique id for this widget
+* @param the gad/item for power
+* @param the gad/item for master volume
+* @param the gad/item for volume +
+* @param the gad/item for volume -
+* @param the gad/item for muting
+* @param the gad/item for nowplaying text
+* @param the gad/item for station name text
+* @param the gad/item for AV input source
+* @param the gad/item for dictionary with AV sources to display
+*
+* @author Serge Wagener
+*/
+{% macro avr(id, gad_power, gad_vol, gad_volup, gad_voldown, gad_mute, gad_nowplaying, gad_station, gad_source, gad_sourceslist) %}
+	{% import "basic.html" as basic %}
+	{% set uid = uid(page, id) %}
+
+	<div id="{{ uid }}" class="avr">
+		{% if gad_vol %}
+			<div class="vol">
+				<img class="slider-bottomup-scale" src="pages/base/pics/scale_buttomup.png">
+				{{ basic.slider(id~'vol', gad_vol, 0, 100, 1, 'bottomup') }}
+			</div>
+		{% endif %}
+
+		<div class="volbuttons">
+			VOL:
+			<div data-role="controlgroup" data-type="vertical">
+				{% if gad_volup %} {{ basic.button(id~'volup', gad_volup, '', icon0~'control_plus.png',1,'micro') }} {% endif %}
+				{% if gad_voldown %} {{ basic.button(id~'voldown', gad_voldown, '', icon0~'control_minus.png',1,'micro') }} {% endif %}
+			</div>	
+		</div>
+		
+		<div class="control">
+			{% if gad_mute %} {{ basic.dual(id~'mute', gad_mute, icon1~'audio_volume_mute.png', icon0~'audio_volume_mute.png') }} {% endif %}
+			{% if gad_power %} {{ basic.dual(id~'power', gad_power, icon1~'control_on_off.png', icon0~'control_on_off.png') }} {% endif %}
+		</div>
+
+		<div class="source">
+			{% if gad_source %}
+			{{ basic.value(id~'source', gad_source) }}<br /> 
+			{% endif %}
+		</div>
+		<div class="nowplaying">
+			{% if gad_station %}
+			{{ basic.value(id~'station', gad_station) }}<br /> 
+			{% endif %}
+			{% if gad_nowplaying %}
+			{{ basic.value(id~'nowplaying', gad_nowplaying) }}
+			{% endif %}
+		</div>
+
+		{% if gad_sourceslist %}
+		<div class="set">
+			<div data-role="controlgroup" data-type="horizontal">
+				{% for key, value in gad_sourceslist %} 
+					{{ basic.button(id~key, gad_source, value, '', key) }}
+				{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+	</div>
+{% endmacro %}
+
+* @param unique id for this widget
+* @param the gad/item for bass
+* @param the gad/item for trebble
+
+{% macro tone(id, gad_bass, gad_trebble) %}
+	{% import "basic.html" as basic %}
+	{% set uid = uid(page, id) %}
+
+	<div id="{{ uid }}" class="avr">
+		<table width="100%">
+			{% if gad_bass %}
+			<tr>
+				<td>BASS</td><td>{{ basic.slider(id~'bass', gad_bass, 44, 56, 1) }}</td>
+			</tr>
+			{% endif %}
+			{% if gad_trebble %}
+			<tr>
+				<td>TREBBLE</td><td>{{ basic.slider(id~'trebble', gad_trebble, 44, 56, 1) }}</td>
+			</tr>
+			{% endif %}
+		</table>
+	</div>
+{% endmacro %}

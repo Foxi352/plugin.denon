@@ -1,0 +1,84 @@
+@CHARSET "UTF-8";
+
+/* display background only on larger displays */
+@media all and (min-width: 600px) {
+	.page-bg {
+		background-image: url('../../pics/bg/smoke_spirals.png');
+	}
+}
+
+.avr {
+	position: relative;
+	padding: 10px 0 10px 0;
+}
+
+.avr .vol {
+	width: 55px;
+}
+
+.avr .vol .ui-slider {
+	display: inline-block;
+}
+
+.avr .ui-slider .ui-input-text {
+	display: none !important;
+}
+
+.avr .source {
+	position: absolute;
+	margin-left: 120px;
+	margin-right: 60px;
+	top: 60px;
+	left: 0;
+	right: 0;
+}
+
+.avr .nowplaying {
+	position: absolute;
+	margin-left: 65px;
+	margin-right: 5px;
+	height: auto;
+	top: 100px;
+	left: 0;
+	right: 0;
+}
+
+.avr .control {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.avr .set {
+	position: absolute;
+	margin-left: 65px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.avr .set .pos {
+	margin: 10px;
+}
+
+.avr .set .scale {
+	position: relative;
+	height: 15px;
+	top: 2px;
+	background-image: url('pics/scalex_linear.png');
+}
+
+.avr .set .ui-slider-track {
+	margin: 0 0 5px 0 !important;
+}
+
+.avr .set .ui-controlgroup-horizontal {
+	margin: 10px 10px 0 10px;
+}
+
+.avr .volbuttons {
+	position: absolute;
+	top:5px;
+	left: 60px;
+	width: 50px;
+}
