@@ -21,5 +21,4 @@ macro tone(id, gad_bass, gad_trebble)
 			</div>
 		</div>
 	</div>
-    </blockquote>
 ~~~
