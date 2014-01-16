@@ -1,10 +1,11 @@
 # AVR widget
 
 # Supported macros
+<pre>
 macro avr(id, gad_power, gad_vol, gad_volup, gad_voldown, gad_mute, gad_nowplaying, gad_station, gad_source, gad_sourceslist)
 macro tone(id, gad_bass, gad_trebble)
-
-## pages examples
+</pre>
+# Pages examples
 
 ~~~
 	<div class="block">
