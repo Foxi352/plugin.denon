@@ -1,7 +1,5 @@
 # Denon
-
 # Supported Hardware
-
 Tested with:
 * Denon AVR-1912
 
